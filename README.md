@@ -1,4 +1,4 @@
 # Projects
-\n
-COMP6080: Front-End Web Programming\n
-COMP3231: Operating Systems\n
+\br
+COMP6080: Front-End Web Programming\br
+COMP3231: Operating Systems\br
