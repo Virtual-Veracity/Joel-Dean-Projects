@@ -2,8 +2,8 @@
 
 + **COMP3331: Computer Networks and Applications**
   1. TCP End-to-End Simulation
-    - Simulated a client and server tcp connection over localhost
-    - Functionality includes authentication, requests, commands and initiation handshake and termination
+      - Simulated a client and server tcp connection over localhost
+      - Functionality includes authentication, requests, commands and initiation handshake and termination
 
 + **COMP6771: Advanced C++ Programming**
   1. 
