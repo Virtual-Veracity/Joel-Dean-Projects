@@ -33,4 +33,9 @@
      - A dynamic web application written in native react
      - Allows the creation, editing and saving of slideshow presentations
      - Incorporates UI/UX principles and various media insertions
+    
+  + **COMP1511 - Programming Fundamentals**
+  + **COMP2041 - Software Construction**
+  + **COMP2511 - The Art of Software Design**
+  + **COMP3311 - Intro to Databases**
 
