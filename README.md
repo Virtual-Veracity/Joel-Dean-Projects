@@ -2,54 +2,64 @@
 
 ### **COMP3331: Computer Networks and Applications**
 - **TCP End-to-End Simulation** *(Python)*  
-  - Designed and implemented a client-server TCP simulation over localhost, encompassing authentication, request handling, and command execution.  
-  - Incorporated a three-way handshake mechanism for connection initiation and a graceful termination process.  
-  - Applied modular programming principles to ensure maintainability and extensibility.
+  - Designed and implemented a fully functional client-server TCP simulation over localhost, including authentication, request handling, and command execution.  
+  - Developed a three-way handshake mechanism for connection initiation and ensured a graceful connection termination process to simulate real-world TCP behavior.  
+  - Incorporated multi-threading to handle concurrent client connections, ensuring efficient communication.  
+  - Leveraged Python’s `socket` library and modular design principles to create an extensible codebase.
 
 ### **COMP6771: Advanced C++ Programming**
 - **Algorithm & Data Structure Efficiency** *(C++)*  
-  - Developed an optimized algorithm leveraging advanced C++ data structures to solve the word ladder problem.  
-  - Refined the solution iteratively, reducing time complexity and meeting stringent performance constraints.  
-  - Utilized STL containers (e.g., `std::unordered_set` and `std::queue`) for efficient operations.  
+  - Designed and implemented a highly optimized algorithm to solve the word ladder problem using advanced data structures like hash maps and priority queues.  
+  - Applied benchmarking techniques to iteratively refine the algorithm and achieve optimal time complexity.  
+  - Used templates, STL containers (e.g., `std::unordered_set`, `std::queue`), and memory-efficient practices for scalability.  
 - **Filtered String View** *(C++)*  
-  - Implemented a memory-constant string view class with constructors, member functions, and operator overloads.  
-  - Conducted robust testing with a variety of edge cases to validate functionality and performance.
+  - Created a memory-constant string view class, implementing constructors, iterators, and operator overloads for seamless integration with existing C++ libraries.  
+  - Conducted rigorous unit testing using the Catch2 Test framework to validate edge cases and ensure robustness.   
 
 ### **COMP2041: Software Construction**
 - **Git Simulation** *(Bash)*  
-  - Simulated core Git functionality, including commands such as `commit`, `show`, and `init`.  
-  - Utilized shell scripting, UNIX pipelines, and file manipulation tools for effective implementation.  
+  - Developed a Git-like repository simulation with commands such as `commit`, `log`, `show`, and `init`, replicating essential version control functionality.  
+  - Used Bash scripting, `awk`, and `sed` for file parsing and data manipulation, ensuring compatibility across UNIX systems.  
+  - Implemented error handling and edge case management to emulate real-world repository behavior.  
 - **Slippy** *(Python)*  
-  - Developed a command-line utility replicating text manipulation commands like `print`, `delete`, and `list`.  
-  - Employed extensive regular expressions and Pythonic principles to ensure functionality and readability.
+  - Built a robust text processing tool implementing common commands like `print`, `delete`, and `list`.  
+  - Utilized regular expressions extensively for pattern matching and data transformation.  
+  - Followed modular programming practices and adhered to PEP 8 standards for clean and maintainable code.
 
 ### **COMP3231: Operating Systems**
 - **Concurrency Solutions** *(C)*  
-  - Designed and implemented solutions for classic concurrency problems, emphasizing thread synchronization and resource management.  
+  - Designed and implemented solutions for classic concurrency problems (e.g., producer-consumer, readers-writers) using mutexes, semaphores, and condition variables.  
+  - Focused on thread safety and race condition prevention while optimizing resource utilization.  
 - **Virtual File System** *(C)*  
-  - Built a basic VFS that abstracts system-level operations for seamless disk interaction.  
-  - Integrated inode structures and directory traversal logic for efficient file handling.  
+  - Created a basic VFS, implementing file system abstraction layers, inode structures, and directory traversal logic.  
+  - Integrated caching mechanisms to improve access times and system performance.  
 - **Virtual Address Translation** *(C)*  
-  - Implemented a memory management system to map virtual addresses to physical memory, adhering to OS-level requirements.
+  - Developed a virtual memory system for translating virtual addresses into physical memory using paging techniques.  
+  - Incorporated page replacement algorithms (e.g., FIFO, LRU) to manage memory efficiently.  
+
 
 ### **COMP6080: Front-End Web Programming**
 - **PictoCode** *(HTML/CSS)*  
-  - Built a static webpage with a focus on responsive design and semantic HTML for accessibility.  
+  - Designed and developed a static webpage with responsive design principles, focusing on accessibility and cross-browser compatibility.  
 - **FunForm** *(JavaScript)*  
-  - Created a dynamic form with real-time validation and user-interaction updates using event-driven JavaScript.  
+  - Built a dynamic form validation tool with interactive error messages and real-time updates using event listeners.  
 - **QandA** *(Advanced JavaScript)*  
-  - Developed a feature-rich web platform with functionality for user authentication, content management, and CRUD operations.  
-  - Ensured code modularity and scalability using JavaScript best practices.  
+  - Developed a fully functional web application featuring user authentication, content posting, and CRUD operations.  
 - **Presto** *(React)*  
-  - Built a dynamic slideshow application with React, incorporating state management with hooks and UI/UX principles.  
-  - Enabled multimedia insertion, editing, and saving functionality.  
-  - Utilized testing libraries like Cypress to ensure a robust application.
+  - Built a dynamic slideshow creation platform with React, incorporating state management with hooks and Redux.  
+  - Followed UI/UX best practices to enhance usability, including drag-and-drop functionality and multimedia integration.  
+  - Implemented end-to-end testing with Cypress to ensure robustness across various user scenarios.
+  - Designed a custom JSON data structure for storage to simplify data handling and improve developer productivity.
+
 
 ### **COMP1511: Programming Fundamentals**
 - **Paint** *(C)*  
-  - Wrote a program to generate geometric shapes based on user-defined dimensions using algorithmic logic.  
+  - Developed a geometric shape generator capable of dynamically creating patterns based on user input.  
+  - Utilized recursion and modular arithmetic to ensure efficient computation.  
 - **Pokedex** *(C)*  
-  - Designed a custom data structure to emulate a Pokémon information system with efficient retrieval and management.
+  - Designed and implemented a custom data structure to simulate a Pokémon information database.  
+  - Added search and sorting algorithms to enable efficient querying and updating of Pokémon data.
+
 
 ### **COMP2511: The Art of Software Design**
 - **Satellite Controller** *(Java)*  
@@ -63,5 +73,4 @@
 - **SQL Queries** *(PostgreSQL)*  
   - Authored efficient SQL queries to retrieve data from relational databases, focusing on optimization and performance.  
 - **RDBMS Layers** *(Python)*  
-  - Developed Python abstractions for database interactions using the `psycopg3` library.  
-  - Implemented techniques to streamline query execution and data manipulation.
+  - Developed Python abstractions for database interactions using the `psycopg3` library, streamlining query execution and data manipulation.
