@@ -39,7 +39,7 @@
   - Incorporated page replacement algorithms (e.g., FIFO, LRU) to manage memory efficiently.  
 
 
-### **COMP2511: The Art of Software Design**
+### **COMP2511: OO Design and Programming**
 - **Satellite Controller** *(Java)*  
   - Built an OOP-based system to manage satellite functionality, employing interfaces, abstract classes, and inheritance.  
   - Applied design patterns to ensure scalability and modularity.  
@@ -69,7 +69,7 @@
   - Designed and implemented a custom data structure to simulate a Pokémon information database.  
   - Added search and sorting algorithms to enable efficient querying and updating of Pokémon data.
 
-### **COMP3311: Introduction to Databases**
+### **COMP3311: Database Systems**
 - **SQL Queries** *(PostgreSQL)*  
   - Authored efficient SQL queries to retrieve data from relational databases, focusing on optimization and performance.  
 - **RDBMS Layers** *(Python)*  
