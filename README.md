@@ -1,41 +1,67 @@
-# Projects
+# **Projects**
 
-+ **COMP3331: Computer Networks and Applications**
-  1. TCP End-to-End Simulation
-      - Simulated a client and server tcp connection over localhost
-      - Functionality includes authentication, requests, commands and initiation handshake and termination
+### **COMP3331: Computer Networks and Applications**
+- **TCP End-to-End Simulation** *(Python)*  
+  - Designed and implemented a client-server TCP simulation over localhost, encompassing authentication, request handling, and command execution.  
+  - Incorporated a three-way handshake mechanism for connection initiation and a graceful termination process.  
+  - Applied modular programming principles to ensure maintainability and extensibility.
 
-+ **COMP6771: Advanced C++ Programming**
-  1. Algorithm & Data Structure Efficiency
-      - Implemented an algorithm using specific c++ data structures to solve the word ladder problem
-      - Iterated on the algorithm to improve time complexity constraints
-  2. Filtered String View
-      - Implemented constructors and member/non-member operators for a class to hold a memory constant view of a string
-      - Implemented a wide array of tests to ensure proper functionality of the class
+### **COMP6771: Advanced C++ Programming**
+- **Algorithm & Data Structure Efficiency** *(C++)*  
+  - Developed an optimized algorithm leveraging advanced C++ data structures to solve the word ladder problem.  
+  - Refined the solution iteratively, reducing time complexity and meeting stringent performance constraints.  
+  - Utilized STL containers (e.g., `std::unordered_set` and `std::queue`) for efficient operations.  
+- **Filtered String View** *(C++)*  
+  - Implemented a memory-constant string view class with constructors, member functions, and operator overloads.  
+  - Conducted robust testing with a variety of edge cases to validate functionality and performance.
 
-+ **COMP3231: Operating Systems**
-    1. Concurrency
-        - The implemetation of solutions to concurrency problems
-    2. Virtual File System
-        - A basic implementation of a vfs that connects higher level system operations with disk operations
-    3. Virtual Address Translation
-        - An implementation of a system that virtualises the addresses of memory for lookup within an OS
+### **COMP2041: Software Construction**
+- **Git Simulation** *(Bash)*  
+  - Simulated core Git functionality, including commands such as `commit`, `show`, and `init`.  
+  - Utilized shell scripting, UNIX pipelines, and file manipulation tools for effective implementation.  
+- **Slippy** *(Python)*  
+  - Developed a command-line utility replicating text manipulation commands like `print`, `delete`, and `list`.  
+  - Employed extensive regular expressions and Pythonic principles to ensure functionality and readability.
 
-+ **COMP6080: Front-End Web Programming**
-  1. PictoCode: HTML/CSS
-     - Static page written using HTML and CSS
-  2. FunForm: Basic Javascript
-     -  A form that enforces rules and upates with user input
-  3. qanda: Advanced Javascript
-     - A website powered with JavaScript
-     - Fucntionality includes user management, posting and listing and authentication
-  5. Presto: React
-     - A dynamic web application written in native react
-     - Allows the creation, editing and saving of slideshow presentations
-     - Incorporates UI/UX principles and various media insertions
-    
-  + **COMP1511 - Programming Fundamentals**
-  + **COMP2041 - Software Construction**
-  + **COMP2511 - The Art of Software Design**
-  + **COMP3311 - Intro to Databases**
+### **COMP3231: Operating Systems**
+- **Concurrency Solutions** *(C)*  
+  - Designed and implemented solutions for classic concurrency problems, emphasizing thread synchronization and resource management.  
+- **Virtual File System** *(C)*  
+  - Built a basic VFS that abstracts system-level operations for seamless disk interaction.  
+  - Integrated inode structures and directory traversal logic for efficient file handling.  
+- **Virtual Address Translation** *(C)*  
+  - Implemented a memory management system to map virtual addresses to physical memory, adhering to OS-level requirements.
 
+### **COMP6080: Front-End Web Programming**
+- **PictoCode** *(HTML/CSS)*  
+  - Built a static webpage with a focus on responsive design and semantic HTML for accessibility.  
+- **FunForm** *(JavaScript)*  
+  - Created a dynamic form with real-time validation and user-interaction updates using event-driven JavaScript.  
+- **QandA** *(Advanced JavaScript)*  
+  - Developed a feature-rich web platform with functionality for user authentication, content management, and CRUD operations.  
+  - Ensured code modularity and scalability using JavaScript best practices.  
+- **Presto** *(React)*  
+  - Built a dynamic slideshow application with React, incorporating state management with hooks and UI/UX principles.  
+  - Enabled multimedia insertion, editing, and saving functionality.  
+  - Utilized testing libraries like Cypress to ensure a robust application.
+
+### **COMP1511: Programming Fundamentals**
+- **Paint** *(C)*  
+  - Wrote a program to generate geometric shapes based on user-defined dimensions using algorithmic logic.  
+- **Pokedex** *(C)*  
+  - Designed a custom data structure to emulate a Pokémon information system with efficient retrieval and management.
+
+### **COMP2511: The Art of Software Design**
+- **Satellite Controller** *(Java)*  
+  - Built an OOP-based system to manage satellite functionality, employing interfaces, abstract classes, and inheritance.  
+  - Applied design patterns to ensure scalability and modularity.  
+- **2D Dungeon Game** *(Java)*  
+  - Refactored and extended an existing game using OOP patterns such as State, Strategy, and Factory to enhance functionality.  
+  - Conducted code reviews to ensure adherence to OOP principles and maintainability.
+
+### **COMP3311: Introduction to Databases**
+- **SQL Queries** *(PostgreSQL)*  
+  - Authored efficient SQL queries to retrieve data from relational databases, focusing on optimization and performance.  
+- **RDBMS Layers** *(Python)*  
+  - Developed Python abstractions for database interactions using the `psycopg3` library.  
+  - Implemented techniques to streamline query execution and data manipulation.
