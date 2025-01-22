@@ -11,11 +11,11 @@
 
 + **COMP3231: Operating Systems**
     1. Concurrency
-      - The implemetation of solutions to concurrency problems
+        - The implemetation of solutions to concurrency problems
     2. Virtual File System
-      - A basic implementation of a vfs that connects higher level system operations with disk operations
+        - A basic implementation of a vfs that connects higher level system operations with disk operations
     3. Virtual Address Translation
-      - An implementation of a system that virtualises the addresses of memory for lookup within an OS
+        - An implementation of a system that virtualises the addresses of memory for lookup within an OS
 
 + **COMP6080: Front-End Web Programming**
   1. PictoCode: HTML/CSS
