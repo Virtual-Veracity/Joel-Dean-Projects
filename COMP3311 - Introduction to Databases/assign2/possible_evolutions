@@ -1,0 +1,176 @@
+#! /usr/bin/env python3
+
+
+"""
+COMP3311
+23T1
+Assignment 2
+Pokemon Database
+
+Written by: Joel Dean - z5208947
+Written on: T1 2023 April
+
+Possible Evolutions
+
+Given the name of a pokemon,
+display a list of all the pokemon that could evolve into the given pokemon,
+and a list of all the pokemon that the given pokemon could evolve into.
+"""
+
+
+import sys
+import psycopg2
+import helpers
+
+
+### Constants
+USAGE = f"Usage: {sys.argv[0]} <Pokemon Name>"
+
+
+### Globals
+db = None
+Pokemon_Name = None
+
+
+### Command-line args
+if len(sys.argv) != 2:
+    print(USAGE, file=sys.stderr)
+    sys.exit(1)
+Pokemon_Name = helpers.clean(sys.argv[1])
+
+
+def main():
+    dbCursor = db.cursor()
+
+    # ======= Valid Pokemon Argument =============
+    dbCursor.execute('''
+        SELECT (ID).Pokedex_Number, (ID).Variation_Number
+        FROM Pokemon
+        WHERE Pokemon.Name = %s
+    ''', [Pokemon_Name])
+
+    pokemon = dbCursor.fetchone()
+    if pokemon == None:
+        exit(f"\n'{Pokemon_Name}' isn't a Pokemon that exists.")
+
+    pokemonNum = pokemon[0]
+    pokemonVar = pokemon[1]
+
+
+    # Include requirements for each and all pre/evolution
+    # =========== Prevolutions ==============
+    dbCursor.execute('''
+        SELECT Pokemon.Name, Evolutions.ID
+        FROM Evolutions
+        JOIN Pokemon ON Pokemon.ID = Evolutions.Pre_Evolution
+        WHERE (Post_Evolution).Pokedex_Number = %s AND (Post_Evolution).Variation_Number = %s
+        ORDER BY (Pre_Evolution).Pokedex_Number, (Pre_evolution).Variation_Number
+    ''', [pokemonNum, pokemonVar])
+
+    prevolutionList = dbCursor.fetchall()
+
+    if len(prevolutionList) != 0:
+        print(f"'{Pokemon_Name}' can evolve from:")
+
+        # May be multiple requirements for one pokemon 
+        previousPokemon = None
+        for prevolution in prevolutionList:
+            if previousPokemon != prevolution[0]:
+                print(f"\t'{prevolution[0]}' when the following requirements are satisfied:")
+            elif previousPokemon != None:
+                print('\tOR')
+            previousPokemon = prevolution[0]
+
+            # print out the requirement
+            dbCursor.execute('''
+                SELECT EV.Inverted, R.Assertion
+                FROM Evolution_Requirements AS EV
+                JOIN Evolutions ON Evolutions.ID = EV.Evolution
+                JOIN Requirements AS R ON R.ID = EV.Requirement
+                WHERE Evolutions.ID = %s
+                ORDER BY Evolutions.ID, EV.Inverted, R.ID
+            ''', [prevolution[1]])
+
+            requirementList = dbCursor.fetchall()
+            multipleReqs = 0
+            for requirement in requirementList:
+                inversion = ''
+                if requirement[0] == True:
+                    inversion = 'NOT '
+
+                if multipleReqs == 1:
+                    print('\t\tAND')
+                print(f"\t\t\t{inversion}{requirement[1]}")
+                multipleReqs = 1
+
+    else:
+        print(f"'{Pokemon_Name}' doesn't have any pre-evolutions.")
+    print('')
+
+    # ======== Evolutions =============
+    dbCursor.execute('''
+        SELECT Pokemon.Name, Evolutions.ID
+        FROM Evolutions
+        JOIN Pokemon ON Pokemon.ID = Evolutions.Post_Evolution
+        WHERE (Pre_Evolution).Pokedex_Number = %s AND (Pre_Evolution).Variation_Number = %s
+        ORDER BY (Post_Evolution).Pokedex_Number, (Post_evolution).Variation_Number
+    ''', [pokemonNum, pokemonVar])
+
+    evolutionList = dbCursor.fetchall()
+
+    if len(evolutionList) != 0:
+        print(f"'{Pokemon_Name}' can evolve into:")
+
+        # May be multiple requirements for one pokemon 
+        previousPokemon = None
+        for evolution in evolutionList:
+            if previousPokemon != evolution[0]:
+                if previousPokemon != None:
+                    print('')
+                print(f"\t'{evolution[0]}' when the following requirements are satisfied:")
+            elif previousPokemon != None:
+                print('\tOR')
+
+            previousPokemon = evolution[0]
+
+            # print out the requirement
+            dbCursor.execute('''
+                SELECT EV.Inverted, R.Assertion
+                FROM Evolution_Requirements AS EV
+                JOIN Evolutions ON Evolutions.ID = EV.Evolution
+                JOIN Requirements AS R ON R.ID = EV.Requirement
+                WHERE Evolutions.ID = %s
+                ORDER BY Evolutions.ID, EV.Inverted, R.ID
+            ''', [evolution[1]])
+
+            requirementList = dbCursor.fetchall()
+            multipleReqs = 0
+            for requirement in requirementList:
+                inversion = ''
+                if requirement[0] == True:
+                    inversion = 'NOT '
+
+                if multipleReqs == 1:
+                    print('\t\tAND')
+                print(f"\t\t\t{inversion}{requirement[1]}")
+                multipleReqs = 1
+
+    else:
+        print(f"'{Pokemon_Name}' doesn't have any post-evolutions.")
+    print('')
+    return
+
+
+if __name__ == '__main__':
+    try:
+        db = psycopg2.connect(dbname="ass2")
+        main()
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    except Exception as err:
+        print("Internal Error: ", err)
+        raise err
+    finally:
+        if db is not None:
+            db.close()
+    sys.exit(0)

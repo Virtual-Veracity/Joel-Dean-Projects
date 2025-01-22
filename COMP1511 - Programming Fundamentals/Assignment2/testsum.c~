@@ -1,0 +1,7 @@
+#include <stdio.h>
+
+int main (void) {
+    int num = 001;
+    
+    printf("%d\n",num);
+}

@@ -1,0 +1,252 @@
+#! /usr/bin/env python3
+
+
+"""
+COMP3311
+23T1
+Assignment 2
+Pokemon Database
+
+Written by: Joel Dean - z5208947
+Written on: April T1 2023
+
+Attack Damage
+
+Given the name of an attacking, and a defending pokemon along with the name of a game in the Pokemon series,
+display a list, ordered from lowest to highest damage,
+of all the moves the attacking pokemon could use on the defending pokemon in the given game.
+"""
+
+
+import sys
+import psycopg2
+import helpers
+from math import trunc
+
+
+### Constants
+USAGE = f"Usage: {sys.argv[0]} <Attacking Pokemon Name> <Defending Pokemon Name> <Pokemon Game Name>"
+
+
+### Globals
+db = None
+Attacking_Pokemon_Name = None
+Defending_Pokemon_Name = None
+Pokemon_Game_Name      = None
+
+
+### Command-line args
+if len(sys.argv) != 4:
+    print(USAGE, file=sys.stderr)
+    sys.exit(1)
+Attacking_Pokemon_Name = helpers.clean(sys.argv[1])
+Defending_Pokemon_Name = helpers.clean(sys.argv[2])
+Pokemon_Game_Name      = helpers.clean(sys.argv[3])
+
+
+def main():
+    dbCursor = db.cursor()
+
+    # Invalid Attacker Pokemon
+    dbCursor.execute('''
+        SELECT *
+        FROM Pokemon
+        WHERE Name = %s
+    ''', [Attacking_Pokemon_Name])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'{Attacking_Pokemon_Name}' isn't a Pokemon that exists.")
+
+    # Invalid Defending Pokemon
+    dbCursor.execute('''
+        SELECT *
+        FROM Pokemon
+        WHERE Name = %s
+    ''', [Defending_Pokemon_Name])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'{Defending_Pokemon_Name}' isn't a Pokemon that exists.")
+
+    # Invalid Pokemon Game
+    dbCursor.execute('''
+        SELECT *
+        FROM Games
+        WHERE Name = %s
+    ''', [Pokemon_Game_Name])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'Pokemon {Pokemon_Game_Name}' isn't a game in the Pokemon series.")
+
+    # Attacker Pokemon Doesn't Appear in Specified Game
+    dbCursor.execute('''
+        SELECT *
+        FROM Pokedex
+        JOIN Pokemon ON Pokemon.ID = Pokedex.National_ID
+        JOIN Games ON Games.ID = Pokedex.Game
+        WHERE Pokemon.Name = %s AND Games.Name = %s
+    ''', [Attacking_Pokemon_Name, Pokemon_Game_Name])
+
+    if len(dbCursor.fetchall()) == 0:
+        exit(f"'{Attacking_Pokemon_Name}' doesn't appear in 'Pokemon {Pokemon_Game_Name}'.")
+
+    # Defender Pokemon doesn't appear in Specified Game
+    dbCursor.execute('''
+        SELECT *
+        FROM Pokedex
+        JOIN Pokemon ON Pokemon.ID = Pokedex.National_ID
+        JOIN Games ON Games.ID = Pokedex.Game
+        WHERE Pokemon.Name = %s AND Games.Name = %s
+    ''', [Defending_Pokemon_Name, Pokemon_Game_Name])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'{Defending_Pokemon_Name}' doesn't appear in '{Pokemon_Game_Name}'.")
+
+    # ---------- Attack Calculations ----------------
+    # Find all of Attacker Pokemon's Possible Moves
+
+    dbCursor.execute('''
+        SELECT DISTINCT Moves.Name, Moves.Category::TEXT, Moves.POWER, Types.Name
+        FROM Learnable_Moves AS LM
+        JOIN Moves ON Moves.ID = LM.Learns
+        JOIN Pokemon ON Pokemon.ID = LM.Learnt_By
+        JOIN Games ON Games.ID = LM.Learnt_In
+        JOIN Types ON Types.ID = Moves.Of_Type
+        WHERE Pokemon.Name = %s AND Games.Name = %s AND Moves.POWER > 0
+        ORDER BY Moves.Name ASC
+    ''', [Attacking_Pokemon_Name, Pokemon_Game_Name])
+
+    moveList = dbCursor.fetchall()
+
+    # --- Attack ---
+    dbCursor.execute('''
+        SELECT T1.Name
+        FROM Pokemon
+        JOIN Types AS T1 ON T1.ID = Pokemon.First_Type
+        WHERE Pokemon.Name = %s
+    ''', [Attacking_Pokemon_Name])
+
+    # Separately Derive the Attacking Pokemon's Second Type
+    firstAttackType, = dbCursor.fetchone()
+
+    # See if a second type exists
+    dbCursor.execute('''
+        SELECT Types.Name
+        FROM Pokemon
+        JOIN Types ON Types.ID = Pokemon.Second_Type
+        WHERE Pokemon.Name = %s
+    ''', [Attacking_Pokemon_Name])
+
+    # Separately Derive the Attacking Pokemon's Second Type
+    secondAttackType = dbCursor.fetchone()
+    if secondAttackType == None:
+        secondAttackType = ''
+    else:
+        secondAttackType = secondAttackType[0]
+
+    # --- Defence ---
+    # See if a second type exists
+    dbCursor.execute('''
+        SELECT T1.Name
+        FROM Pokemon
+        JOIN Types AS T1 ON T1.ID = Pokemon.First_Type
+        WHERE Pokemon.Name = %s
+    ''', [Defending_Pokemon_Name])
+
+    # Separately Derive the Attacking Pokemon's Second Type
+    firstDefenceType, = dbCursor.fetchone()
+    
+    dbCursor.execute('''
+        SELECT Types.Name
+        FROM Pokemon
+        JOIN Types ON Types.ID = Pokemon.Second_Type
+        WHERE Pokemon.Name = %s
+    ''', [Defending_Pokemon_Name])
+    secondDefenceType = dbCursor.fetchone()
+    if secondDefenceType == None:
+        secondDefenceType = ''
+    else:
+        secondDefenceType = secondDefenceType[0]
+
+    # Calcualte Minimum and Maximum possible damage
+    # For each Move
+    # Create another list tuple with (Move Name, Min Damaage, Max Damage)
+    outputList = []
+    for move in moveList:
+        moveName = move[0]
+        moveCategory = move[1]
+        movePower = move[2]
+        moveType = move[3]
+
+        # Attacker / Defender Values
+        dbCursor.execute('''
+            SELECT AttackDefenceValue(%s, %s, %s)
+        ''', [moveCategory, Attacking_Pokemon_Name, Defending_Pokemon_Name])
+
+        attackerAttack, defenderDefence = dbCursor.fetchall()
+
+        # Stab Value
+        stabValue = 1.0
+        if moveType == firstAttackType or moveType == secondAttackType:
+            stabValue = 1.5
+
+        # Type Effectiveness
+        # Find all types regarding this move
+        # -> For this game (The name is unique so if it came out before, I can use the name to identify it now)
+        dbCursor.execute('''
+            SELECT TE.Multiplier
+            FROM Type_Effectiveness AS TE
+            JOIN Types AS TD ON TD.ID = TE.Defending
+            JOIN Types AS TA ON TA.ID = TE.Attacking
+            WHERE TA.Name = %s AND (TD.Name = %s OR TD.Name = %s)
+        ''', [moveType, firstDefenceType, secondDefenceType])
+        multipliers = dbCursor.fetchall()
+
+        effectiveValue = 1.0
+        for value in multipliers:
+            effectiveValue = effectiveValue * (value[0] / 100)
+        
+
+        minDamage = ((((((2 * 1.0) / 5) + 2) * movePower * ((attackerAttack[0] * 1.0)/defenderDefence[0])) / 50.0) + 2) * 0.85 * stabValue * effectiveValue
+
+        maxDamage = ((((((2.0 * 100) / 5.0) + 2) * movePower * ((attackerAttack[0] * 1.0)/defenderDefence[0])) / 50.0) + 2) * stabValue * effectiveValue
+
+        # if moveName == 'Vine Whip':
+        #     print(f"Move Type: {moveType}")
+        #     print(f"Attack Types: {firstAttackType}, {secondAttackType}")
+        #     print(f"Defence Types: {firstDefenceType}, {secondDefenceType}")
+        #     print(f"Multipliers: {multipliers}")
+        #     print(f"Move Category: {moveCategory}")
+        #     print(f"Moves.POWER: {movePower}\nAttackerAttack: {attackerAttack[0]}\nDefenderDefence: {defenderDefence[0]}\nSTAB: {stabValue}\nType Effectiveness: {effectiveValue}")
+        #     print(f"{moveName}, {minDamage}, {maxDamage}")
+
+        if minDamage != 0 and maxDamage != 0:
+            outputList.append((moveName, trunc(round(minDamage, 1)), trunc(round(maxDamage, 1))))
+    
+    #  ---------  Final Printing of Result ------------
+    if len(outputList) == 0:
+        print(f"In 'Pokemon {Pokemon_Game_Name}', '{Attacking_Pokemon_Name}' can't attack '{Defending_Pokemon_Name}'.")
+    else:
+        print(f"In 'Pokemon {Pokemon_Game_Name}', When '{Attacking_Pokemon_Name}' attacks '{Defending_Pokemon_Name}', '{Attacking_Pokemon_Name}' can use the following moves:\n")
+        outputList.sort(key = lambda x: (x[2], x[1], x[0]))
+        for row in outputList:
+            moveName = "\t'"+ row[0] + "'"
+            minDamage = ' for a minimum of '
+            maxDamage = " and a maximum of "
+            defender = " to '" + Defending_Pokemon_Name + "'."
+            print(f"{moveName:<16}{minDamage}{row[1]:>4} damage{maxDamage}{row[2]:>4} damage{defender}")
+    return
+
+
+if __name__ == '__main__':
+    try:
+        db = psycopg2.connect(dbname="ass2")
+        main()
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    except Exception as err:
+        print("Internal Error: ", err)
+        raise err
+    finally:
+        if db is not None:
+            db.close()
+    sys.exit(0)

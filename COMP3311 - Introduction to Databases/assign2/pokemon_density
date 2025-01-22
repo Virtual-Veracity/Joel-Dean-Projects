@@ -1,0 +1,119 @@
+#! /usr/bin/env python3
+
+
+"""
+COMP3311
+23T1
+Assignment 2
+Pokemon Database
+
+Written by: Joel Dean - z5208947
+Written on: April T1 2023
+
+Pokemon Density
+
+Find the density of pokemon in each location within a given region.
+"""
+
+
+import sys
+import psycopg2
+import helpers
+import math
+
+
+### Constants
+USAGE = f"Usage: {sys.argv[0]} <Region>"
+
+
+### Globals
+db = None
+Region = None
+
+
+### Command-line args
+if len(sys.argv) != 2:
+    print(USAGE, file=sys.stderr)
+    sys.exit(1)
+Region = helpers.clean(sys.argv[1])
+
+
+def main():
+    dbCursor = db.cursor()
+
+    # =========== Invalid Input ======================
+    #  Invalid Region (Doesn't Exist)
+    dbCursor.execute('''
+        SELECT ID
+        FROM Games
+        WHERE Region::TEXT = %s
+    ''', [Region])
+
+    gameList = []
+    for game in dbCursor.fetchall():
+        gameList.append(game[0])
+
+    if len(gameList) == 0:
+        exit(f"'{Region}' isn't a region in the Pokemon series.")
+
+    # Obtain all Locations within the Games
+    dbCursor.execute('''
+        SELECT DISTINCT Locations.Name
+        FROM Locations
+        WHERE Appears_In = ANY(%s)
+    ''', (gameList,))
+    
+    locationList = []
+    for location in dbCursor.fetchall():
+        locationList.append(location[0])
+
+
+    # ============= Density Calculation ===================
+    
+    dbCursor.execute('''
+        SELECT location, SUM(density) * 1.0 / COUNT(*) AS overallDensity
+        FROM
+        (SELECT Locations.Name AS location, Games.Name, SUM((Pokemon.Average_Weight * 1000.0 * Encounters.Rarity / 100.0) / ((4.0/3) * pi() * (Pokemon.Average_Height * 100.0 / 2.0)^3)) AS density
+        FROM Encounters
+        JOIN Locations ON Locations.ID = Encounters.Occurs_At
+        JOIN Games ON Games.ID = Locations.Appears_In
+        JOIN Pokemon ON Pokemon.ID = Encounters.Occurs_With
+        WHERE Games.Region = %s
+        GROUP BY Locations.Name, Games.ID
+        ORDER BY Locations.Name) AS pokemonDensity
+        GROUP BY location
+        ORDER BY overallDensity DESC, location ASC
+    ''', [Region])
+
+    pokemonSumList = dbCursor.fetchall()
+
+    print(f"The average density of Pokemon within each location in the '{Region}' region:\n")
+
+    locationUsed = []
+    for pokemonSum in pokemonSumList:
+        print(f"\t{pokemonSum[0]}{':':<15}{pokemonSum[1]:.4f}")
+        locationUsed.append(pokemonSum[0])
+    
+    print(f"The following locations in the '{Region}' region have no wild Pokemon encounters:\n")
+
+    emptyLocations = list(set(locationList) - set(locationUsed))
+    emptyLocations.sort()
+    for empty in emptyLocations:
+        print(f"\t{empty}")
+    print()
+    return
+
+
+if __name__ == '__main__':
+    try:
+        db = psycopg2.connect(dbname="ass2")
+        main()
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    except Exception as err:
+        print("Internal Error: ", err)
+        raise err
+    finally:
+        if db is not None:
+            db.close()
+    sys.exit(0)

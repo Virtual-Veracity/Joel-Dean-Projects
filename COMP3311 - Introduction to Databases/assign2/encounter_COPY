@@ -1,0 +1,193 @@
+#! /usr/bin/env python3
+
+
+"""
+COMP3311
+23T1
+Assignment 2
+Pokemon Database
+
+Written by: Joel Dean z5208947
+Written on: T1 2023 April
+
+Encounter Summary
+
+Print a summary of all the Pokemon that can be encountered at a given location in a given game
+"""
+
+
+import sys
+import psycopg2
+import helpers
+
+### Constants
+USAGE = f"Usage: {sys.argv[0]} <Location> <Game>"
+
+
+### Globals
+db = None
+Location = None
+Game = None
+
+
+### Command-line args
+if len(sys.argv) != 3:
+    print(USAGE, file=sys.stderr)
+    sys.exit(1)
+Location = helpers.clean(sys.argv[1])
+Game     = helpers.clean(sys.argv[2])
+
+
+def main():
+    dbCursor = db.cursor()
+    
+    # ================= Invalid Argument Checks =======================
+
+    # ===== Invalid Location =====
+    dbCursor.execute('''
+        SELECT *
+        FROM Locations
+        WHERE Locations.Name ~ %s
+    ''', [Location])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'{Location}' isn't a location in the Pokemon series.")
+
+    # ===== Invalid Game =====
+    dbCursor.execute('''
+        SELECT *
+        FROM Games
+        WHERE Games.Name = %s
+    ''', [Game])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'Pokemon {Game}' isn't a game in the Pokemon series.")
+
+
+    # ===== Invalid Game <-> Location Pair =====
+    dbCursor.execute('''
+        SELECT *
+        FROM Locations
+        JOIN Games ON Games.ID = Locations.Appears_In
+        WHERE Locations.Name = %s AND Games.Name = %s
+    ''', [Location, Game])
+
+    if dbCursor.fetchone() == None:
+        exit(f"'{Location}' isn't in 'Pokemon {Game}'.")
+
+    # ================= Display all Pokemon and Encounter Information =======================
+    print(f"In 'Pokemon {Game}' at '{Location}' the following Pokemon can be Encountered:\n")
+
+    # For the location in this Game
+    # Query that returns all pokemon plus info associated
+    # Order Pokemon based On rarity (Encounters Table), Then name ASc, Then Level ASC, Then requirements ASC
+    
+    # Information Needed
+    # Pokemon Name
+    # Pokemon First Type
+    # Pokemon Second Type (if it exists)
+    # Pokemon Rarity
+    # Min Encounter Level
+    # Max Encounter Level
+    # Multiple Egg Groups (Omit if none exist)
+    # knowable Abiltiies (Omit if none + Do NOT show hidden abilties)
+    # Encounter Reqs (mark inverted with not, Sort before adding the NOT)
+
+    dbCursor.execute('''
+        SELECT P.Name, Types.Name, SecondType(P.Name), E.Rarity, (Levels).MIN, (Levels).MAX
+        FROM Games
+        JOIN Locations AS L ON L.Appears_In = Games.ID
+        JOIN Encounters AS E ON E.Occurs_At = L.ID
+        JOIN Pokemon AS P ON P.ID = E.Occurs_With
+        JOIN Encounter_Requirements AS ER ON ER.Encounter = E.ID
+        JOIN Requirements AS R ON R.ID = ER.Requirement
+        JOIN Types ON Types.ID = P.First_Type
+        WHERE Games.Name = 'Lost Cave' AND L.Name = 'Let''S Go, Eevee'
+        ORDER BY E.Rarity DESC, P.Name ASC, (Levels).MAX ASC
+    ''', [Game, Location])
+
+    print(dbCursor.fetchall())
+
+    # Print Information
+    for pokemon in dbCursor.fetchall():
+        # Pokemon Name      
+        print(f"{pokemon[0]}:")
+        
+        if pokemon[2] != '':
+            print(f"\tType: {pokemon[1]}/{secondType[0]}")
+        else:
+            print(f"\tType: {pokemon[1]}")
+
+        # Pokemon Rarity
+        print(f"\tRarity: {pokemon[2]}%")
+
+        # Pokemon Min/Max levels
+        print(f"\tLevels: min {pokemon[3]}, max {pokemon[4]}")
+
+        #Pokemon Egg Groups
+        dbCursor.execute('''
+            SELECT EG.Name
+            FROM Pokemon
+            JOIN In_GROUP AS IG ON IG.Pokemon = Pokemon.ID
+            JOIN Egg_Groups AS EG ON EG.ID = IG.Egg_Group
+            WHERE Pokemon.Name = %s
+            ORDER BY EG.Name ASC
+        ''', [pokemon[0]])
+
+        start = 0
+        for group in dbCursor.fetchall():
+            if start == 0:
+                print("\tEgg Groups: ", end = '')
+            else:
+                print(", ", end = '')
+
+            print(group[0], end = '')
+            start = 1
+        print('')
+
+        # Pokemon Abiltities
+        dbCursor.execute('''
+            SELECT Abilities.Name
+            FROM Pokemon
+            JOIN Knowable_Abilities AS KA ON KA.Known_By = Pokemon.ID
+            JOIN Abilities ON Abilities.ID = KA.Knows
+            WHERE Pokemon.Name = %s AND KA.Hidden IS False
+            ORDER BY Abilities.Name ASC
+        ''', [pokemon[0]])
+
+        abilityList = dbCursor.fetchall()
+
+        start = 0
+        for ability in abilityList:
+            if start == 0:
+                print("\tAbilities: ", end = '')
+            else:
+                print(", ", end = '')
+
+            print(ability[0], end = '')
+            start = 1
+        print('')
+
+        # Encounter Requirements
+        if pokemon[5] == True:
+            inversion = 'NOT'
+        else:
+            inversion = ''
+        print(f"\tEncounter Requirements:\n\t\t{inversion}{pokemon[6]}")
+        print()
+    return
+
+
+if __name__ == '__main__':
+    try:
+        db = psycopg2.connect(dbname="ass2")
+        main()
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    except Exception as err:
+        print("Internal Error: ", err)
+        raise err
+    finally:
+        if db is not None:
+            db.close()
+    sys.exit(0)

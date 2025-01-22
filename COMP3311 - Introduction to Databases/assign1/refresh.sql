@@ -1,0 +1,21 @@
+DROP VIEW Q1;
+DROP VIEW Q2;
+DROP VIEW Q3;
+DROP FUNCTION reason(beerABV ABVvalue, minABV ABVvalue, maxABV ABVvalue);
+DROP VIEW Q4;
+DROP VIEW Q5;
+DROP VIEW Q6;
+DROP VIEW HopCount;
+DROP VIEW GrainCount;
+DROP VIEW Q7;
+DROP FUNCTION Q8;
+DROP FUNCTION PretentiousPeople;
+DROP VIEW Q9;
+DROP FUNCTION formBeerInfo;
+DROP FUNCTION getBeerIngredients;
+DROP FUNCTION matchString;
+DROP FUNCTION getBeerName;
+DROP FUNCTION getBeerBrewers;
+
+
+
