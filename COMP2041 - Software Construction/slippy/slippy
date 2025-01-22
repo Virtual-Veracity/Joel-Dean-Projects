@@ -1,0 +1,667 @@
+#! /usr/bin/env python3 
+
+
+# ==================================== COMP 2041 - Assignment 2 ============================
+# ==================================== z5208947 - Joel Dean  ============================
+# ==================================== UNSW Trimester 2 2022 ============================
+
+# Libraries and Packages
+from email.headerregistry import HeaderRegistry
+import sys
+import re
+
+# Functions
+# ======= run_slippy ============
+# Extract the command and conditions within the slippy command 
+
+def run_slippy(argument): 
+    command_line = argument
+
+    # Initialize Variables
+    command_list = ['q', 'p', 'd', 's']
+    command_type = None
+    delimeter = '/'
+
+
+    # ==================== Extract Command + Address =========================
+    # Cases:
+    #     Case 1: Empty 
+    #     Case 2: Line Number
+    #     Case 3: Regex
+
+    # Case 1: Empty
+    if command_line[0] in command_list:
+        command = command_line[0]
+
+        # Set Address to 'empty'
+        # Each slippy function interpretes empty differently
+        command_type = 'empty'
+        condition = 'empty'
+
+    # Case 1.5: Last Line ('$') Address refers to last line in input
+    elif command_line[0] == '$' and command_line[1] in command_list:
+        command_type = 'last'
+        command = command_line[1]
+        condition = '$'
+        command_line = command_line[1:]
+
+    # Case 2: Line Number
+    elif command_line[0].isdigit():
+
+        # Go through digits until a non-digit is found
+        counter = 1
+        while command_line[counter].isdigit():
+            counter += 1
+
+        # All digits up to current represent the line number
+        # Next character must be a command
+        if command_line[counter] in command_list:
+
+            # Set Command and Condition (Address)
+            command = command_line[counter]
+            command_type = 'line'
+            condition = command_line[:counter] 
+
+            # Remove Digits from the start of Command Line
+            command_line = command_line[counter:]
+
+        else:
+            print("slippy: command line: invalid command")
+            sys.exit(1)
+
+    # Case 3: Regex
+    elif command_line[0] == '/':
+        if command_line.count('/') >= 2:
+
+            # Assign Regex Condition (Address)
+            command_split = command_line.split('/')
+            command_type = 'regex'
+            condition = command_split[1]
+
+            # Assign Command
+            if command_split[2][0] in command_list:
+                command = command_split[2][0]
+            else:
+                print("slippy: command line: invalid command")
+                sys.exit(1)
+
+            # Remove regex from beginning of argument
+            command_split.remove(command_split[1])
+            command_split.remove(command_split[0])
+
+            if len(command_split) > 1:
+                command_line = command_split[0:]
+                command_line = '/'.join(command_line)
+            else:
+                command_line = command_split[0]
+        
+    # Catch Invalid Commands
+    else:
+        print("slippy: command line: invalid command")
+        sys.exit(1)
+    
+
+
+
+    # =================== Substitute (s) Sub-Commands =========================
+    if command == 's':
+        sub_command = command_line
+        sub_command = sub_command[1:]
+
+        # Determine Delimeter
+        if len(sub_command) > 1:
+            delimeter = sub_command[0]
+
+        else:
+            print("slippy: command line: invalid command")
+            sys.exit(1)
+
+
+        # Ensure delimeter is not whitespace
+        if delimeter == " ":
+            print("slippy: command line: invalid command")
+            sys.exit(1)
+        
+        # Sort Subtitution command into components
+        if command_line.count(delimeter) >= 3:
+            sub_command = sub_command.split(delimeter)
+
+            # Put the Line Num / Regex into address
+            address = condition
+            
+            # Obtain the Substituition components
+            condition = sub_command[1]
+            replace = sub_command[2]
+
+        else:
+            print("slippy: command line: invalid command")
+            sys.exit(1)
+
+        # print("Address: " + str(address))
+        # print("Condition: " + str(condition))
+        # print("Replace: " + str(replace))
+        # print("Command: " + str(command))
+
+        #===========  Check 'g' flag ============
+        # Case 1: Delimeter may g
+        if delimeter == 'g':
+            if len(sub_command) != 4 and sub_command[3] == '':
+                command == 'g'
+        # Case 2: Delimeter is not g and no trailing chars
+        elif len(sub_command[3]) > 1:
+            if sub_command[3][0] == 'g':
+                command = 'g'
+        elif sub_command[3] == 'g':
+            command = 'g'
+
+        # An empty condition is invalid for substitute slippy command
+        if condition == '':
+            print("slippy: command line: invalid command")
+            sys.exit(1)
+
+    #================ Invalid Command Check ====================
+
+    if not isinstance(condition, list):
+        # Catch All for Invalid Commands
+        if command not in command_list and command != 'g':
+            print("slippy: command line: invalid command")
+            sys.exit(1)
+
+        # Check Invalid Line Nums
+        if command_type == 'line' and int(condition) == 0:
+            print("slippy: command line: invalid command")
+            sys.exit(1) 
+        
+        if command_type == 'regex' and str(condition)  == '':
+            print("slippy: command line: invalid command")
+            sys.exit(1) 
+    
+    # ===================== Trailing Digit Removal ==================
+    # Remove trailing digits from command argument
+    # If a non-digit is found it must be a command [q, p, d, g] or a delimiter (substitute command may have a weird delim)
+    # Command is invalid otherwise
+    trailing = -1
+    trail_counter = -1
+    command_trail = command_line
+    while command_trail[trail_counter].isdigit():
+        command_trail = command_trail[:-1]
+
+
+    if command_trail[trailing] not in command_list and command_trail[trailing] != delimeter and command != 'g':
+        print("slippy: command line: invalid command")
+        sys.exit(1)
+
+    # ========================================================
+
+    # Command Line Arguments Error
+    # Must be preceded by validity of the argument intended for slippy 
+    if len(sys.argv) > 2:
+        if len(sys.argv) == 3 and (sys.argv[1] == '-n' or sys.argv[1] == '-f'):
+            pass
+        else:
+            print("slippy: error")
+            sys.exit(1)
+
+
+    # ========================= Perform Command ==============================
+
+    # Quit Command
+    if command == "q":
+        return [command, command_type, condition]
+    # Print Command
+    elif command == "p":
+        return [command, command_type, condition]
+    # Delete Command
+    elif command == "d":
+        return [command, command_type, condition]
+    # Substitute Command
+    elif command == "s" or command == 'g':
+        return [command, command_type, address, condition, replace]
+    else:
+        print("slippy: command line: invalid command")
+        sys.exit(1) 
+
+
+#  ============= Slippy Functions ==========================
+#=============== Quit Slippy Command =======================
+def slippy_quit(input, command_type, condition, count, last):
+    # Once input matches command -> quit
+    # Quit Interpretation of Empty Case
+    if condition == 'empty':
+        command_type = 'line'
+        condition = 1
+
+    # Line Number Condition
+    if command_type == 'line':
+            
+        if count == int(condition) - 1:
+            return ('quit', input)
+
+    # Regex Condition
+    elif command_type == 'regex':
+            
+        if re.search(condition, input) != None:
+            return ('quit', input)
+    
+    elif command_type == 'last':
+        if last == True:
+            return ('quit', input)
+
+    else:
+        print("slippy: error")
+        sys.exit(1)
+    
+    return input
+
+# ================= Slippy Print Function ==================
+def slippy_print(input, command_type, condition, count, last):
+    
+    # Print Interpretation of Empty Case
+    if condition == 'empty':
+        command_type = 'regex'
+        condition = '.*'
+
+    # Line Number Condition
+    if command_type == 'line':
+        if count == int(condition) - 1:
+            return ('print', input)
+
+    # Regex Condition
+    elif command_type == 'regex':
+        if re.search(condition, input) != None:
+            return ('print', input)
+    
+    elif command_type == 'last':
+        if last == True:
+            return ('print', input)
+
+    elif command_type == 'range':
+        start = stop = 0
+        if ((condition[2][0] == 'L' and count == int(condition[0]) - 1) or\
+           (condition[2][0] == 'R' and re.search(condition[0], input) != None) or\
+           (condition[2][0] == '$' and last == True)) and condition[3] == False:
+            start = 1
+
+        if ((condition[2][1] == 'L' and count >= int(condition[1]) - 1) or\
+             (condition[2][1] == 'R' and re.search(condition[1], input) != None) or\
+             (condition[2][1] == '$' and last == True)):
+            stop = 1
+
+        if (condition[3] == True and stop != 1) or (start == 1 and stop == 1):
+                return ('print', input)
+        elif start == 1:
+            return (True, input)
+        elif stop == 1 and condition[3] == True:
+            return (False, input)
+
+    else:
+        print("slippy: error")
+        sys.exit(1)
+
+    return input
+
+
+# ================= Slippy Delete Function ==================
+def slippy_delete(input, command_type, condition, count, last):
+
+    # Print Interpretation of Empty Case
+    if condition == 'empty':
+        command_type = 'regex'
+        condition = '.*'
+
+    # Line Number Condition
+    if command_type == 'line':
+        if count == int(condition) - 1:
+            return ''
+
+    # Regex Condition
+    elif command_type == 'regex':
+        if re.search(condition, input) != None:
+            return ''
+    
+    elif command_type == 'last':
+        if last == True:
+            return ''
+
+    # Condtion -> [Start, Stop, Addr_Type(e.g. LR or $L)]
+    elif command_type == 'range':
+        if ((condition[2][0] == 'L' and count == int(condition[0]) - 1) or\
+           (condition[2][0] == 'R' and re.search(condition[0], input) != None) or\
+           (condition[2][0] == '$' and last == True)) and condition[3] == False:
+            return True
+
+        elif ((condition[2][1] == 'L' and count == int(condition[1]) - 1) or\
+             (condition[2][1] == 'R' and re.search(condition[1], input) != None) or\
+             (condition[2][1] == '$' and last == True)) and condition[3] == True:
+            return False
+
+        elif condition[3] == True:
+                input = ''
+    else:
+        print("slippy: error")
+        sys.exit(1)
+
+    return input
+
+
+def slippy_substitute(input, command, command_type, address, condition, replace, count, last):
+
+    # For the range address
+    boundary = 0
+
+    # Substitute Interpretation of Empty Case 
+    # Quit Interpretation of Empty Case
+    if address == 'empty':
+        command_type = 'regex'
+        address = '.*'
+
+    # Regex Condition
+    # Check address is valid before performing relevant substitute
+    if (command_type == 'line' and count == int(address) - 1) or \
+        (command_type == 'regex' and re.search(address, input) != None) or \
+        (command_type == 'last' and last == True):
+
+        # First occurance Substitute
+        if command == 's':
+            input = re.sub(condition, replace, input, count=1)
+
+
+        # Multiple Substitute
+        elif command == 'g':
+            while re.search(condition, input) != None:
+                input = re.sub(condition, replace, input)
+
+    elif command_type == 'range':
+
+        if ((address[2][0] == 'L' and count == int(address[0]) - 1) or\
+           (address[2][0] == 'R' and re.search(address[0], input) != None) or\
+           (address[2][0] == '$' and last == True)) and address[3] == False:
+            boundary = 1
+            switch = True
+
+        elif ((address[2][1] == 'L' and count == int(address[1]) - 1) or\
+             (address[2][1] == 'R' and re.search(address[1], input) != None) or\
+             (address[2][1] == '$' and last == True)) and address[3] == True:
+            boundary = 1
+            switch = False
+        
+        if address[3] == True or boundary == 1:
+            if command == 's':
+                input = re.sub(condition, replace, input, count=1)
+
+            # Multiple Substitute
+            elif command == 'g':
+                while re.search(condition, input) != None:
+                    input = re.sub(condition, replace, input)
+        
+    if boundary == 1:
+        return [input, switch]
+    else:
+        return input
+
+
+
+
+#================ Python Run File as MAIN ======================
+# Use this to pipe input into slippy commands
+if __name__ == "__main__":
+
+    # =================== Usage Invalid Commands ===================
+    # Length can only be 2 or 3
+    # Length 3 must be accompied by -n
+    print(sys.argv[1])
+    if len(sys.argv) == 1:
+        print("usage: slippy [-i] [-n] [-f <script-file> | <sed-command>] [<files>...]")
+        sys.exit(1)
+
+    # if (sys.argv[1] == '-n' or sys.argv[1] == '-f') and (sys.argv[2] == '-n' or sys.argv[2] == '-f'):
+    #     file = open(sys.argv[3])
+    #     argument = file.readlines()
+    #     file.close()
+    #     argument = ''.join(argument)
+    #     argument = argument[:-1]
+    # el
+    if sys.argv[1] == '-n':
+        argument = sys.argv[2]
+    elif sys.argv[1] == '-f':
+        file = open(sys.argv[2])
+        argument = file.readlines()
+        file.close()
+        argument = ''.join(argument)
+        argument = argument[:-1]
+    else:
+        argument = sys.argv[1]
+    # ============= Multiple Commands ===========
+    arguments = re.split(r'[;\n]', str(argument))
+
+
+# ======================== Address Ranges (,) ============================
+    # Pipe standard input into slippy function
+    arg_list = []
+    for arg in arguments:
+
+        # Range Type Address
+        if arg.count(',') == 1 and len(arg) >= 4:
+            # Check Left half first
+            # $ - Last
+            if arg[0] == '$' and arg[1] == ',':
+                comma_split = arg.split(',')
+                right = comma_split[2:]
+                right = ','.join(right)
+                args = run_slippy(right)
+                if args[1] == 'line':
+                    type_right = 'L'
+                elif args[1] == 'regex':
+                    type_right = 'R'
+                elif args[1] == '$':
+                    type_right = '$'
+                args[1] = 'range'
+                args[2] = ['$', args[2], '$' + type_right, False]
+                arg_list.append(args)
+                continue
+
+            # Line Number
+            elif arg[0].isdigit():
+                comma_split = arg.split(',')
+                if len(comma_split) >= 2 and comma_split[0].isnumeric():
+                    right = comma_split[1:]
+                    right = ','.join(right)
+                    args = run_slippy(right)
+                    if args[1] == 'line':
+                        type_right = 'L'
+                    elif args[1] == 'regex':
+                        type_right = 'R'
+                    elif args[1] == '$':
+                        type_right = '$'
+                    args[1] = 'range'
+                    args[2] = [comma_split[0], args[2], 'L' + type_right, False]
+                    arg_list.append(args)
+                    continue
+
+            # Regex        
+            elif arg[0] == '/':
+                delim_split = arg.split('/')
+                if len(delim_split) >= 3 and delim_split[2][0] == ',':
+                    right = delim_split[2:]
+                    right = '/'.join(right)
+                    right = right[1:]
+                    args = run_slippy(right)
+                    if args[1] == 'line':
+                        type_right = 'L'
+                    elif args[1] == 'regex':
+                        type_right = 'R'
+                    elif args[1] == '$':
+                        type_right = '$'
+                    args[1] = 'range'
+                    args[2] = [delim_split[1], args[2], 'R' + type_right, False]
+                    arg_list.append(args)
+                continue
+        
+        args = run_slippy(arg)
+        arg_list.append(args)
+   
+    # Line By Line
+    last = False
+    switch = False
+    counter= 0 
+    for count, line in enumerate(sys.stdin):
+        counter = count
+        if count == 0:
+            look_ahead = sys.stdin.readline()
+
+        else:
+            # Keep the next line of input from standard input in the look_ahead variable
+            # Allow count to know when the last line of input is at hand (-1)
+            temp = line
+            line = look_ahead 
+            look_ahead = temp 
+
+        # Obtain Conditions for each slippy command
+        for argument in arg_list:
+            # ========================= Perform Command ==============================
+            # argList Order [command, command_type, address, condition, replace]
+            command = argument[0]
+
+            # Quit Command
+            if command == "q":
+                line = slippy_quit(line, argument[1], argument[2], count, last)
+
+                if line[0] == 'quit':
+                    if sys.argv[1] != '-n':
+                        print(line[1], end='')
+                    line = line[1]
+                    sys.exit(0)
+
+            # Print Command
+            elif command == "p":
+                line = slippy_print(line, argument[1], argument[2], count, last)
+
+                # Set range switch to true/false
+                if line[0] == 'print':
+                    print(line[1], end='')
+                    line = line[1]
+                elif line[0] == True:
+                    argument[2][3] = True
+                    print(line[1], end='')
+                    line = line[1]
+                elif line[0] == False:
+                    argument[2][3] = False
+                    print(line[1], end='')
+                    line = line[1]
+                
+
+            # Delete Command
+            elif command == "d":
+                line = slippy_delete(line, argument[1], argument[2], count, last)
+
+                if line == '':
+                    break
+                # Set range switch to true
+                elif line == True:
+                    argument[2][3] = True
+                    line = ''
+                    break
+                elif line == False:
+                    argument[2][3] = False
+                    line = ''
+                    break
+
+            # Substitute Command
+            elif command == "s" or command == 'g':
+                line = slippy_substitute(line, argument[0], argument[1], argument[2], argument[3], argument[4], count, last)
+                # Set range switch to true
+                if len(line) > 1:
+                    if line[1] == True:
+                        argument[2][3] = True
+                        line = line[0]
+                    elif line[1] == False:
+                        argument[2][3] = False
+                        line = line[0]
+
+            else:
+                print("slippy: command line: invalid command")
+                sys.exit(1) 
+
+        # Automatic Print unless '-n' option given
+        if sys.argv[1] != '-n':
+            print(line, end='')
+
+
+#==================================== $ Address =================================================
+    # Easiest way to do the $ address is just redo the argument loop on the last input received (Only way I can think of right now)
+    line = look_ahead
+    counter += 1
+    last = True
+    for argument in arg_list:
+        # ========================= Perform Command ==============================
+        # argList Order [command, command_type, address, condition, replace]
+        command = argument[0]
+        # Quit Command
+        if command == "q":
+            look_ahead = slippy_quit(look_ahead, argument[1], argument[2], counter, last)
+
+            if look_ahead[0] == 'quit':
+                if sys.argv[1] != '-n':
+                    print(look_ahead[1], end='')
+                look_ahead = look_ahead[1]
+                sys.exit(0)
+
+        # Print Command
+        elif command == "p":
+            look_ahead = slippy_print(look_ahead, argument[1], argument[2], counter, last)
+
+            if look_ahead[0] == 'print':
+                print(look_ahead[1], end='')
+                look_ahead = look_ahead[1]
+            # Set range switch to true/false
+            elif look_ahead[0] == True:
+                argument[2][3] = True
+                print(look_ahead[1], end='')
+                look_ahead = look_ahead[1]
+            elif look_ahead[0] == False:
+                argument[2][3] = False
+                print(look_ahead[1], end='')
+                look_ahead = look_ahead[1]
+
+        # Delete Command
+        elif command == "d":
+            look_ahead = slippy_delete(look_ahead, argument[1], argument[2], counter, last)
+
+            if look_ahead == '':
+                break
+            # Set range switch to true
+            elif look_ahead == True:
+                argument[2][3] = True
+                look_ahead = ''
+                break
+            elif look_ahead == False:
+                argument[2][3] = False
+                look_ahead = ''
+                break
+
+        # Substitute Command
+        elif command == "s" or command == 'g':
+            look_ahead = slippy_substitute(look_ahead, argument[0], argument[1], argument[2], argument[3], argument[4], counter, last)
+
+            # Set range switch to true
+            if len(look_ahead) > 1:
+                if look_ahead[1] == True:
+                    argument[2][3] = True
+                    look_ahead = look_ahead[0]
+                elif look_ahead[1] == False:
+                    argument[2][3] = False
+                    look_ahead = look_ahead[0]
+
+        else:
+            print("slippy: command line: invalid command")
+            sys.exit(1) 
+
+    # Automatic Print unless '-n' option given
+    if sys.argv[1] != '-n':
+        print(look_ahead, end='')
+    
+
+
+
+
+

@@ -1,0 +1,60 @@
+#! /bin/dash
+
+# Find the files to be added to the index
+# copy them into the index (Each branch will have it's own index)
+# For now add to master
+# Later -> check head for proper branch
+# that's probably it
+
+# Check that the .tigger repo exists
+if test ! -e .tigger
+then 
+    echo 'tigger-add: error: tigger repository directory .tigger not found' >&2
+    exit 1
+fi 
+
+if test $# -eq 0
+then 
+    echo 'usage: tigger-add <filenames>' >&2
+    exit 1
+else
+    # Invalid Filename check for all File command line args
+    for fileName in $@
+    do 
+        # Check for filenames
+        # Invalid: 
+        #       Only contain ([a-zA-Z0-9]) and '.' '-' '_'
+        #       Cannot contain at front of name '_' or '.'
+        invalidFileName=$(echo "$fileName" | grep -oE [^a-zA-Z0-9._\-]+)
+        invalidStartFile=$(echo "$fileName" | grep -oE '^[._]')
+
+        if test -n "$invalidFileName"
+        then
+            echo "tigger-add: error: invalid filename '$fileName'" >&2
+            exit 1
+        elif test -n "$invalidStartFile"
+        then 
+            echo "tigger-add: error: invalid filename '$fileName'" >&2
+            exit 1
+        fi
+
+    done
+
+    # Add all files to index
+    for fileName in $@
+    do 
+        if test -e "$fileName" 
+        then
+            # Later change master to whatever HEAD is pointing to
+            cp "$fileName" .tigger/master/index
+        else
+            if test -e ".tigger/master/index/$fileName"
+            then 
+                rm ".tigger/master/index/$fileName" 
+            else 
+                echo "tigger-add: error: can not open '$fileName'" >&2
+                exit 1
+            fi
+        fi
+    done 
+fi

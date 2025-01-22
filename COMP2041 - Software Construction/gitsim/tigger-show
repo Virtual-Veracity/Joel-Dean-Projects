@@ -1,0 +1,121 @@
+#! /bin/dash
+
+# Check that the .tigger repo exists
+if test ! -e .tigger
+then 
+    echo 'tigger-show: error: tigger repository directory .tigger not found' >&2
+    exit 1
+fi 
+
+# Check for the correct argument count
+if test $# -ne 1
+then 
+    echo "usage: tigger-show <commit>:<filename>" >&2
+    exit 1
+fi 
+
+if test -z $(echo $1 | grep ':')
+then 
+    echo "tigger-show: error: invalid object $1" >&2
+    exit 1
+fi
+
+# Split into proper args
+commitArgument=$(echo $1 | cut -d ':' -f 1)
+fileName=$(echo $1 |  cut -d ':' -f 2)
+branch="master"
+
+# Remember to add in self \n chars for end of message
+#-----------------------Error Cases--------------------
+#----------------- Unknown commit-------------------- 
+
+if test -n "$commitArgument"
+then
+    commitExists='0'
+    for commit in $(ls .tigger/"$branch"/commits)
+    do 
+        # Cycle through commits - See if any match the given one
+        commitNumber=$(echo "$commit" | grep -oE '[0-9]+')
+        if test "$commitArgument" = "$commitNumber"
+        then 
+            commitExists='1'
+            commitName="$commit"
+        fi 
+    done 
+
+    if test "$commitExists" = '0'
+    then
+        echo "tigger-show: error: unknown commit '$commitArgument'" >&2
+        exit 1
+    fi
+
+    # -----------------------Invalid FileName----------------------
+    # Invalid: 
+    #           Only contain ([a-zA-Z0-9]) and '.' '-' '_'
+    #           Cannot contain at front of name '_' or '.'
+    invalidFileName=$(echo "$fileName" | grep -oE [^a-zA-Z0-9._\-]+)
+    invalidStartFile=$(echo "$fileName" | grep -oE '^[._]')
+
+    if test -n "$invalidFileName" -o -n "$invalidStartFile" -o "$fileName" = ''
+    then 
+        echo "tigger-show: error: invalid filename '$fileName'"
+        exit 1
+    fi 
+
+
+    # -----------------------File Doesn't Exist----------------------
+    # Commit exists but file doesn't exist within specified commit
+    # Check for given file within the relevant commit (Commit already found in file system)
+    fileExists='0'
+    for file in $(ls .tigger/"$branch"/commits/"$commitName")
+    do 
+        if test "$file" = "$fileName"
+        then 
+            echo "$(cat ".tigger/$branch/commits/$commitName/$fileName")" 
+            fileExists='1'
+        fi
+    done 
+
+    # Return error if the file doesn't exist in particular commit
+    if test "$fileExists" = '0'
+    then 
+        echo "tigger-show: error: '$fileName' not found in commit $commitArgument" >&2
+        exit 1
+    fi 
+    
+else 
+
+    # -----------------------Invalid FileName----------------------
+    # Invalid: 
+    #           Only contain ([a-zA-Z0-9]) and '.' '-' '_'
+    #           Cannot contain at front of name '_' or '.'
+    invalidFileName=$(echo "$fileName" | grep -oE [^a-zA-Z0-9._\-]+)
+    invalidStartFile=$(echo "$fileName" | grep -oE '^[._]')
+
+    if test -n "$invalidFileName" -o -n "$invalidStartFile" -o "$fileName" = ''
+    then 
+        echo "tigger-show: error: invalid filename '$fileName'"
+        exit 1
+    fi 
+
+    # Commit Ommited from command line
+    #----------File NOT IN Index-----------
+    # File not found in index
+    indexExists='0'
+    for indexFile in $(ls .tigger/"$branch"/index)
+    do 
+        if test "$indexFile" = "$fileName"
+        then 
+            echo "$(cat ".tigger/$branch/index/$fileName")"
+            indexExists='1'
+        fi
+    done 
+
+    # Valid fileName doesn't exist within current index
+    if test "$indexExists" = '0'
+    then 
+        echo "tigger-show: error: '"$fileName"' not found in index" >&2
+        exit 1
+    fi 
+fi
+

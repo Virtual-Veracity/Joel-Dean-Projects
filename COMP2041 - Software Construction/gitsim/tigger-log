@@ -1,0 +1,29 @@
+#! /bin/dash
+
+# Check that the .tigger repo exists
+if test ! -e .tigger
+then 
+    echo 'tigger-log: error: tigger repository directory .tigger not found' >&2
+    exit 1
+fi 
+
+# Check the right amount of args
+if test $# -ne 0
+then 
+    echo 'usage: tigger-log' >&2
+    exit 1
+fi 
+
+# Iterate through every branch
+for branch in $(ls .tigger)
+do 
+    # Iterate through each commit
+    for commit in $(ls .tigger/"$branch"/commits | sort -r)
+    do 
+        # Derive commit Number from filename
+        # Print to stdout -> commit Num + message.txt
+        commitNumber=$(echo "$commit" | grep -oE '[0-9]+')
+        echo "$commitNumber" $(cat ".tigger/$branch/commits/$commit/commitMessage.txt")
+    done 
+done
+exit 0

@@ -1,0 +1,168 @@
+#! /bin/dash
+
+# ====================== COMP2041   ===============
+# =============== By Joel Dean - z5208947 ===============
+# ==================== tigger-status =======================
+
+# Display the status of all files in the current working directory
+
+branch=master
+
+# Think in terms of W - I - R
+# W = Working Direcotry 
+# I = Index 
+# R = Repository
+
+
+# =========== Check that the .tigger repo exists ============
+if test ! -e .tigger
+then 
+    echo 'tigger-status: error: tigger repository directory .tigger not found' >&2
+    exit 1
+fi 
+
+
+# No Need for Incorrect Argument Handling
+
+# Remember most recent commit (If none -> Number = -1)
+commitNumber=0
+commitNumber=$(ls -1 '.tigger/master/commits' | wc -l)
+commitNumber=$((commitNumber-1))
+
+
+
+# ==========  Iterate through files in W ================
+for file in $(ls -1)
+do 
+
+    # Filename Always printed at line beginning
+    echo -n "$file - "
+
+    # Create some variables for better legibility
+    # 0 = true and 1 = false
+    test -e "./$file"
+    working=$?
+    test -e ".tigger/master/index/$file"
+    index=$?
+    test -e  ".tigger/master/commits/commit$commitNum/$file"
+    commit=$?
+
+    work_str="./$file"
+    index_str=".tigger/master/index/$file"
+    commit_str=".tigger/master/commits/commit$commitNum/$file"
+
+# A value of 1 means the file contents in those directories are different
+# 0 means the same contents
+# -1 means the file doesnt exists in both
+
+    if test $working -eq 0 -a $index -eq 0
+    then 
+        if test -n $(diff -q "$word_str" "$index_str")
+        then 
+            W_I=1
+        else 
+            W_I=0
+        fi
+    else 
+        W_I=-1
+    fi 
+
+    if test $working -eq 0 -a $commit -eq 0
+    then 
+        if test -n $(diff -q "$word_str" "$commit_str")
+        then 
+            W_C=1
+        else 
+            W_C=0
+        fi
+    else 
+        W_C=-1
+    fi 
+
+    if test $index -eq 0 -a $commit -eq 0
+    then 
+        if test -n $(diff -q "$index_str" "$commit_str")
+        then 
+            I_C=1
+        else 
+            I_C=0
+        fi
+    else 
+       I_C=-1
+    fi 
+
+
+
+
+
+    # ==================== Isolated Files =====================
+    # Only W
+    if test "$working" -eq 0 -a "$index" -eq 1 -a "$commit" -eq 1
+    then 
+        echo 'untracked'
+    # Only I
+    elif test "$working" -eq 1 -a "$index" -eq 0 -a "$commit" -eq 1
+    then
+        echo 'added to index, file deleted'
+    # Only R
+    elif test "$working" -eq 1 -a "$index" -eq 1 -a "$commit" -eq 0
+    then 
+        echo 'deleted'
+
+    # ========================== Equivalent file in multiples of W-I-R ============================
+    # In W + I
+    elif test "$W_I" -eq 0 -a "$commit" -eq 1
+    then 
+        echo 'added to index'
+    # In I + R
+    elif test "$I_C" -eq 0 -a "$working" -eq 1
+    then 
+        echo 'file deleted'
+    # In W + R
+    elif test "$W_C" -eq 0 -a "$index" -eq 1
+    then 
+        echo 'untracked'
+    # In W + I + R
+    elif test "$W_C" -eq 0 -a "$W_I" -eq 0 -a "$I_C" -eq 0
+    then 
+        echo 'same as repo'
+
+    # ========================== Changed file in multiples (2) of W-I-R ============================
+    # In W + I
+    elif test "$W_I" -eq 1 -a "$commit" -eq 1
+    then 
+        echo 'added to index, file changed'
+    # In I + R
+    elif test "$I_C" -eq 1 -a "$working" -eq 1
+    then 
+        echo 'file deleted, different changes staged for commit'
+    # In W + R
+    elif test "$W_C" -eq 1 -a "$index" -eq 1
+    then 
+        echo 'untracked'
+    # In W + I + R
+    elif test "$W_C" -eq 1 -a "$W_I" -eq 1 -a "$I_C" -eq 1
+    then 
+        echo 'file changed, different changes staged for commit'
+
+    # ========================== File Exists in every directory W - I - R ============================
+    # ========================== Use F1 and F2 for different contents within files ============================
+    # F1 - F1 - F2
+    elif test "$W_I" -eq 0 -a "$I_C" -eq 1 -a "$W_C" -eq 1
+    then
+        echo 'file changed, changes staged for commit'
+    # F1 - F2 - F1
+    elif test "$W_I" -eq 1 -a "$I_C" -eq 1 -a "$W_C" -eq 0
+    then 
+        echo 'file changed, different changes staged for commit'
+    # F2 - F1 - F1
+    elif test "$W_I" -eq 1 -a "$I_C" -eq 0 -a "$W_C" -eq 1
+    then 
+        echo 'file changed, changes not staged for commit'
+    fi
+
+done
+
+
+
+

@@ -1,0 +1,109 @@
+#! /bin/dash
+
+# Check that the .tigger repo exists
+if test ! -e .tigger
+then 
+    echo 'tigger-commit: error: tigger repository directory .tigger not found' >&2
+    exit 1
+fi 
+
+branch="master"
+
+# Check for the right amount of command line args (-a <- optional |||| -m + message)
+# So 2 or 3 are the options
+if test $# -lt 2 -o $# -gt 3
+then 
+    echo "usage: tigger-commit [-a] -m commit-message" >&2
+    exit 1
+fi
+
+# 3 Args
+# First 2 are correct -a / -m
+option=0
+if test $# -eq 3
+then 
+    if test $1 = '-a' -a $2 = '-m'
+    then
+        # -a option added
+        for currentFile in $(ls -1 ".tigger/$branch/index")
+        do
+            # Copy equivalently named file in the current directory to the index
+            # Otherwise -> update index
+            cp "./$currentFile" ".tigger/$branch/index" 2> /dev/null
+        done
+        option=1
+    fi
+fi
+
+# Normal -m commit
+if test $# -eq 2 -o "$option" -eq 1
+then
+    # Create Commit with current index
+    if test $1 = '-m' -o "$option" -eq 1
+    then 
+        # Set message from the command arg
+        if test "$option" -eq 1
+        then
+            message=$3
+        else
+            message=$2
+        fi 
+
+        # Ensure valid message
+        validMessage=$(echo $message | grep -oE '^\-')
+        if test -n "$validMessage"
+        then 
+            echo "usage: tigger-commit [-a] -m commit-message" >&2
+            exit 1
+        else
+            # Check for an empty index
+            if test $(ls -1 ".tigger/"$branch"/index" | wc -l) -eq 0 -a $(ls -1 .tigger/master/commits | wc -l) -eq 0
+            then
+                echo "nothing to commit"
+                exit 0
+            else
+                currentCommitCount=$(ls -1 .tigger/master/commits | wc -l) 
+
+                # Error Condition  
+                # Files exist in index but none have been modified from last commit
+
+                # At least one commit exists (Specifically CommitCount - 1)
+                if test -d ".tigger/master/commits/commit$((currentCommitCount - 1))"
+                then
+                    # Check for differences in files between index and the commit directory
+                    if test -z "$(diff -q -x "commitMessage.txt" .tigger/master/commits/commit"$((currentCommitCount - 1))" .tigger/master/index)"
+                    then 
+                        echo "nothing to commit"
+                        exit 0
+                    fi 
+                fi
+
+                # Make the commit directory with suffix
+                mkdir -p .tigger/master/commits/commit"$currentCommitCount"
+                
+                # Create files within the commit folder
+                # For each file in the index
+                for file in $(ls .tigger/master/index)
+                do
+                    # Copy Files into commit folder
+                    # Create a message.txt  file
+                    cp .tigger/master/index/"$file" .tigger/master/commits/commit"$currentCommitCount"
+                    echo $message > .tigger/master/commits/commit"$currentCommitCount"/commitMessage.txt
+                done 
+
+                echo "Committed as commit $currentCommitCount"
+            fi
+        fi
+
+    # 2 Args - First is not -m (Invalid)
+    else
+        echo "usage: tigger-commit [-a] -m commit-message" >&2
+        exit 1
+    fi 
+
+# Invalid Command
+else 
+    echo "usage: tigger-commit [-a] -m commit-message" >&2
+    exit 1
+fi 
+exit 0

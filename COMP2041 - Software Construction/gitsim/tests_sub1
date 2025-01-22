@@ -1,0 +1,21 @@
+#! /bin/dash
+
+# Tests are assumed to run in a the proper directory
+
+# ===============================    Tests for Subset 1   ===================================
+#
+#
+#  ---------   tigger-commit [-a]   ------------
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: [-a] Option Works
+
+#  ---------   tigger-rm ------------
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: Invalid Filename
+# Test 4: 

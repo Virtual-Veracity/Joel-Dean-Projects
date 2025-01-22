@@ -1,0 +1,95 @@
+#! /bin/dash
+
+# Tests are assumed to run in a the proper directory
+
+# ===============================    Tests for subset 0   ===================================
+#
+rm -r temp_test 2> /dev/null
+mkdir temp_test
+cd temp_test
+#
+#  ---------   tigger-init   ------------
+echo "Beginning tigger-init Testing"
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: Repository already constructed
+
+# Test 1
+output=$(./tigger-init More Arguments 2>&1)
+if test "$output" = 'usage: tigger-init'
+then 
+    echo "Test 1 Passed"
+else 
+    echo "Test 1 Failed"
+fi
+
+rm -r ./*
+
+# Test 2 
+output = ${./tigger-init}
+if test -d .tigger -a "$output" = 'Initialized empty tigger repository in .tigger'
+then 
+    echo "Test 2 Passed"
+else 
+    echo "Test 2 Failed"
+fi 
+
+rm -r ./*
+
+# Test 3 
+mkdir .tigger
+output=$(./tigger-init 2>&1)
+if test "$output" = 'tigger-init: error: .tigger already exists'
+then 
+    echo "Test 3 Passed"
+else 
+    echo "Test 3 Failed"
+fi 
+
+
+
+
+
+#  ---------   tigger-add   ------------
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: Invalid filename
+# Test 4: File Does NOT exist
+# Test 5: Add Files to Index
+
+
+#  ---------   tigger-commit   ------------
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: Valid Message
+# Test 4: Nothing to Commmit (Empty Index + Unchanged Index)
+# Test 5: Create Commit with message
+
+
+#  ---------   tigger-log   ------------
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: No Previous Commits
+# Test 4: Working log
+
+#  ---------   tigger-show   ------------
+
+# Tests
+# Test 1: Invalid Argument Check
+# Test 2: No repository 
+# Test 3: Invalid Filename
+# Test 4: Empty Index / File Doesn't Exist
+# Test 5: Working FileName Only
+# Test 6: Invalid Commit
+# Test 7: Valid Commit/File
+
+
+

@@ -1,0 +1,176 @@
+#! /bin/dash
+
+# ===========================  COMP2041   ===============
+# =============== By Joel Dean - z5208947 ===============
+# ==================== tigger-rm =======================
+
+# Remove a file a file from [index ||  current directory&&index]
+
+branch=master
+
+
+# =========== Check that the .tigger repo exists ============
+if test ! -e .tigger
+then 
+    echo 'tigger-rm: error: tigger repository directory .tigger not found' >&2
+    exit 1
+fi 
+
+
+# ============== Incorrect Argument Handling ==================
+if test "$#" -lt 1
+then 
+    echo "usage: tigger-rm [--force] [--cached] <filenames>" 1>&2
+    exit 1
+fi 
+
+# ========================== Option Checking =======================
+cached=0
+force=0
+
+fileReading=0
+for argument in $@
+do 
+    # Currently Reading Files
+    if test "$fileReading" -eq 1
+    then 
+        # Stop reading files
+        if test "$argument" = '--cached' -o "$argument" = '--force'
+        then 
+            fileReading=2
+        fi
+    fi
+    
+    # Ensure only options are at the end (After an option is seen)
+    if test "$fileReading" -eq 2
+    then 
+        if test ! "$argument" = '--cached' -a ! "$argument" = '--force'
+        then 
+            echo 'usage: tigger-rm [--force] [--cached] <filenames>' >&2
+            exit 1
+        else 
+            if test "$argument" = '--cached'
+            then 
+                cached=1
+            elif test "$argument" = '--force'
+            then 
+                force=1
+            fi
+        fi
+    fi
+    
+    if test "$fileReading" -eq 0
+    then
+        # Check if an option is found within the command arguments
+        if test "$argument" = '--cached'
+        then 
+            cached=1
+        elif test "$argument" = '--force'
+        then 
+            force=1
+        else 
+            fileReading=1
+        fi
+    fi
+done 
+
+# ============== Incorrect Argument Handling ==================
+if test "$fileReading" -eq 0
+then 
+    echo 'usage: tigger-rm [--force] [--cached] <filenames>' >&2
+    exit 1
+fi 
+
+
+# ================ Iterate through filenames ====================
+for file in $@
+do 
+
+    # Check for Invalid Filenames
+    invalidFileName=$(echo "$file" | grep -oE [^a-zA-Z0-9._\-])
+    invalidStartFile=$(echo "$file" | grep -oE '^[._]')
+    invalid=0
+    if test -n "$invalidFileName"
+    then
+        invalid=1
+    elif test -n "$invalidStartFile"
+    then 
+        invalid=1
+    fi
+
+    # Ensure current filename is not an option
+    if test "$file" = '--cached' -o "$file" = '--force' 
+    then 
+        :
+    # Invalid FileName Check
+    elif test "$invalid" -eq 1
+    then 
+        echo "tigger-rm: error: invalid filename '$file'" 1>&2
+        exit 1
+    else 
+
+        # ============= Current FileName Remove Operation =================
+
+        # Test if Filenames exist within the index
+        if test ! -e ".tigger/master/index/$file"
+        then 
+            echo "tigger-rm: error: '$file' is not in the tigger repository" >&2
+            exit 1
+        fi 
+
+        # Check for staging Error and force is not true
+        # Check for unstaged changes in the index -> compared to the most recent commit
+        stageError=0
+        diffError=0
+        currentCommitCount=$(ls -1 .tigger/master/commits | wc -l)
+
+        if test "$force" -eq 0
+        then
+            # Check for staged changes
+            if test ! -e ".tigger/$branch/commits/commit$((currentCommitCount-1))/$file"
+            then
+                stageError=1
+
+            elif test -n "$(diff -q ".tigger/$branch/index/$file" ".tigger/$branch/commits/commit$((currentCommitCount-1))/$file")" -o "$currentCommitCount" -eq 0 
+            then
+                stageError=1
+            fi 
+
+            # Check for differences in index and working directory
+            if test ! -e "./$file"
+            then 
+                diffError=1
+            elif test -n "$(diff -q "./$file" ".tigger/$branch/index/$file")" -o diffContent = ''
+            then 
+                diffError=1
+            fi 
+
+            # Print Appropriate Erros if needed
+            if test "$stageError" -eq 1 -a "$diffError" -eq 1
+            then 
+                echo "tigger-rm: error: '$file' in index is different to both the working file and the repository"
+                exit 1
+            elif test "$stageError" -eq 1 -a "$cached" -ne 1
+            then 
+                echo "tigger-rm: error: '$file' has staged changes in the index"
+                exit 1
+            elif test "$diffError" -eq 1 -a "$cached" -ne 1
+            then 
+                echo "tigger-rm: error: '$file' in the repository is different to the working file"
+                exit 1
+            fi 
+        fi
+
+        # Remove from index
+        rm ".tigger/master/index/$file"
+
+        # If not cached remove from curr directory
+        if test "$cached" -eq 0
+        then
+            rm "./$file" 2> /dev/null
+        fi 
+
+    fi 
+done 
+
+
