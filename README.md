@@ -14,5 +14,8 @@
      - Incorporates UI/UX principles and various media insertions
 + **COMP3231: Operating Systems**
     1. Concurrency
+      - The implemetation of solutions to concurrency problems
     2. Virtual File System
-    3. Virtual Address Translation 
+      - A basic implementation of a vfs that connects higher level system operations with disk operations
+    3. Virtual Address Translation
+      - An implementation of a system that virtualises the addresses of memory for lookup within an OS
