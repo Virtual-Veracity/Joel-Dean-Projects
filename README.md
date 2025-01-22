@@ -38,6 +38,14 @@
   - Incorporated page replacement algorithms (e.g., FIFO, LRU) to manage memory efficiently.  
 
 
+### **COMP2511: The Art of Software Design**
+- **Satellite Controller** *(Java)*  
+  - Built an OOP-based system to manage satellite functionality, employing interfaces, abstract classes, and inheritance.  
+  - Applied design patterns to ensure scalability and modularity.  
+- **2D Dungeon Game** *(Java)*  
+  - Refactored and extended an existing game using OOP patterns such as State, Strategy, and Factory to enhance functionality.  
+  - Conducted code reviews to ensure adherence to OOP principles and maintainability.
+
 ### **COMP6080: Front-End Web Programming**
 - **PictoCode** *(HTML/CSS)*  
   - Designed and developed a static webpage with responsive design principles, focusing on accessibility and cross-browser compatibility.  
@@ -59,15 +67,6 @@
 - **Pokedex** *(C)*  
   - Designed and implemented a custom data structure to simulate a Pokémon information database.  
   - Added search and sorting algorithms to enable efficient querying and updating of Pokémon data.
-
-
-### **COMP2511: The Art of Software Design**
-- **Satellite Controller** *(Java)*  
-  - Built an OOP-based system to manage satellite functionality, employing interfaces, abstract classes, and inheritance.  
-  - Applied design patterns to ensure scalability and modularity.  
-- **2D Dungeon Game** *(Java)*  
-  - Refactored and extended an existing game using OOP patterns such as State, Strategy, and Factory to enhance functionality.  
-  - Conducted code reviews to ensure adherence to OOP principles and maintainability.
 
 ### **COMP3311: Introduction to Databases**
 - **SQL Queries** *(PostgreSQL)*  
