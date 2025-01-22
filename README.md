@@ -29,7 +29,8 @@
 ### **COMP3231: Operating Systems**
 - **Concurrency Solutions** *(C)*  
   - Designed and implemented solutions for classic concurrency problems (e.g., producer-consumer, readers-writers) using mutexes, semaphores, and condition variables.  
-  - Focused on thread safety and race condition prevention while optimizing resource utilization.  
+  - Focused on thread safety and race condition prevention while optimizing resource utilization.
+  - Used GDB extensively to debug and analyze system-level programs, identifying memory leaks, segmentation faults, and thread synchronization issues.
 - **Virtual File System** *(C)*  
   - Created a basic VFS, implementing file system abstraction layers, inode structures, and directory traversal logic.  
   - Integrated caching mechanisms to improve access times and system performance.  
