@@ -6,8 +6,12 @@
       - Functionality includes authentication, requests, commands and initiation handshake and termination
 
 + **COMP6771: Advanced C++ Programming**
-  1. 
-  2.
+  1. Algorithm & Data Structure Efficiency
+      - Implemented an algorithm using specific c++ data structures to solve the word ladder problem
+      - Iterated on the algorithm to improve time complexity constraints
+  2. Filtered String View
+      - Implemented constructors and member/non-member operators for a class to hold a memory constant view of a string
+      - Implemented a wide array of tests to ensure proper functionality of the class
 
 + **COMP3231: Operating Systems**
     1. Concurrency
