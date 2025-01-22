@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="blackout.Task2ExampleTests" tests="17" skipped="0" failures="0" errors="0" timestamp="2022-10-07T09:52:44" hostname="VELLIETY" time="0.032">
+  <properties/>
+  <testcase name="testRelayMovementOutsideBoundary()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testExample()" classname="blackout.Task2ExampleTests" time="0.004"/>
+  <testcase name="testOutOfRange()" classname="blackout.Task2ExampleTests" time="0.001"/>
+  <testcase name="testTeleportingSatelliteCustom()" classname="blackout.Task2ExampleTests" time="0.001"/>
+  <testcase name="testStorageExceptions()" classname="blackout.Task2ExampleTests" time="0.015"/>
+  <testcase name="testRelayWithDevices()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testTeleportingMovement()" classname="blackout.Task2ExampleTests" time="0.001"/>
+  <testcase name="testSomeExceptionsForSend()" classname="blackout.Task2ExampleTests" time="0.002"/>
+  <testcase name="testVisibilityAll()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testRelayMovement()" classname="blackout.Task2ExampleTests" time="0.001"/>
+  <testcase name="testMovement()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testSendSpeed()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testInRangeSatellites()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testBandwidthExceptions()" classname="blackout.Task2ExampleTests" time="0.002"/>
+  <testcase name="testEntitiesInRange()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testWrapAround()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <testcase name="testOutOfRangeTeleport()" classname="blackout.Task2ExampleTests" time="0.0"/>
+  <system-out><![CDATA[0
+0
+0
+0
+0
+0
+0
+0
+0
+{FileBand5=FileInfoResponse [data=Test message, fileSize=12, filename=FileBand5, hasTransferCompleted=true], FileBand1=FileInfoResponse [data=B, fileSize=10, filename=FileBand1, hasTransferCompleted=false], FileBand2=FileInfoResponse [data=Bandwidth2, fileSize=10, filename=FileBand2, hasTransferCompleted=true]}
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+{FileBand1=FileInfoResponse [data=Bandwidth1, fileSize=10, filename=FileBand1, hasTransferCompleted=true], FileBand2=FileInfoResponse [data=B2, fileSize=2, filename=FileBand2, hasTransferCompleted=true]}
+0
+0
+1
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

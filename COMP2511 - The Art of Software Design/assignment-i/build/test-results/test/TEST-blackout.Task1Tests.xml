@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="blackout.Task1Tests" tests="14" skipped="0" failures="0" errors="0" timestamp="2022-10-07T09:52:44" hostname="VELLIETY" time="0.011">
+  <properties/>
+  <testcase name="testAddFileMutlipleDevice()" classname="blackout.Task1Tests" time="0.0"/>
+  <testcase name="testListSatelliteOnly()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testRemoveOneDevice()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testCreateOneSatellite()" classname="blackout.Task1Tests" time="0.0"/>
+  <testcase name="testAddFileOneDevice()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testCreateOneDevice()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testRemoveMultipleDevice()" classname="blackout.Task1Tests" time="0.0"/>
+  <testcase name="testRemoveOneSatellite()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testRemoveMultipleSatellites()" classname="blackout.Task1Tests" time="0.0"/>
+  <testcase name="testCreateSatellitesWithDevices()" classname="blackout.Task1Tests" time="0.0"/>
+  <testcase name="testListDevices()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testCreateMultipleSatellites()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testListDeviceOnly()" classname="blackout.Task1Tests" time="0.001"/>
+  <testcase name="testCreateMultipleDevice()" classname="blackout.Task1Tests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

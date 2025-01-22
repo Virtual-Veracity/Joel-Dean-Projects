@@ -1,0 +1,26 @@
+Mine: [Satellite1]
+[Satellite1]
+0
+0
+0
+0
+0
+0
+0
+0
+0
+º{FileBand5=FileInfoResponse [data=Test message, fileSize=12, filename=FileBand5, hasTransferCompleted=true], FileBand1=FileInfoResponse [data=B, fileSize=10, filename=FileBand1, hasTransferCompleted=false], FileBand2=FileInfoResponse [data=Bandwidth2, fileSize=10, filename=FileBand2, hasTransferCompleted=true]}
+0
+0
+0
+0
+0
+ 0
+ 0
+"0
+"0
+"0
+"Í{FileBand1=FileInfoResponse [data=Bandwidth1, fileSize=10, filename=FileBand1, hasTransferCompleted=true], FileBand2=FileInfoResponse [data=B2, fileSize=2, filename=FileBand2, hasTransferCompleted=true]}
+"0
+"0
+"1
