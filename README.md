@@ -55,9 +55,10 @@
 - **QandA** *(Advanced JavaScript)*  
   - Developed a fully functional web application featuring user authentication, content posting, and CRUD operations.  
 - **Presto** *(React)*  
-  - Built a dynamic slideshow creation platform with React, incorporating state management with hooks and Redux.  
-  - Followed UI/UX best practices to enhance usability, including drag-and-drop functionality and multimedia integration.  
-  - Implemented end-to-end testing with Cypress to ensure robustness across various user scenarios.
+    - On Figma designed a front-end web application focusing on UI/UX principles such as visual hierarchy, web standards and accessibility 
+    - Wrote a single page website using React Native and the RadixUI library allowing users to create and present slideshows with live updates relying on react hooks.
+    - Compose a suite of tests with Cypress with a focus on best practices, including isolating tests from code and end to end testing.
+
   - Designed a custom JSON data structure for storage to simplify data handling and improve developer productivity.
 
 
